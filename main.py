@@ -1,6 +1,7 @@
 # Write your code here :-)
 
 import math
+import random
 
 WIDTH = 800
 HEIGHT = 500
@@ -27,14 +28,25 @@ bullet_radius = 5
 asteroid_radius = 50
 asteroid_color = (255,0,0)
 
+ast_angle = random.randint(0,180)
 asteroids.append({'asteroid_x':100,
                   'asteroid_y':100,
                   'asteroid_color':asteroid_color,
-                  'asteroid_radius':asteroid_radius})
+                  'asteroid_radius':asteroid_radius,
+                  'asteroid_angle':ast_angle})
+ast_angle = random.randint(0,180)
 asteroids.append({'asteroid_x':700,
                   'asteroid_y':100,
                   'asteroid_color':asteroid_color,
-                  'asteroid_radius':asteroid_radius})
+                  'asteroid_radius':asteroid_radius,
+                  'asteroid_angle':ast_angle})
+ast_angle = random.randint(0,180)
+asteroids.append({'asteroid_x':400,
+                  'asteroid_y':400,
+                  'asteroid_color':asteroid_color,
+                  'asteroid_radius':asteroid_radius,
+                  'asteroid_angle':ast_angle})
+
 
 
 def draw():
@@ -65,6 +77,7 @@ def update(dt):
 
 
     bullet_speed = 500
+    asteroid_speed = 150
     bullet_timer += dt
 
     if keyboard.left:
@@ -83,6 +96,12 @@ def update(dt):
                            'angle':alien.angle,
                            'time_left':4})
 
+    for asteroid in asteroids.copy():
+        asteroid['asteroid_x'] -= math.sin(asteroid['asteroid_angle']*(math.pi/180))*asteroid_speed*dt
+        asteroid['asteroid_y'] -= math.cos(asteroid['asteroid_angle']*(math.pi/180))*asteroid_speed*dt
+        asteroid['asteroid_x'] %= WIDTH
+        asteroid['asteroid_y'] %= HEIGHT
+        
 
     for bullet in bullets.copy():
         bullet['x']-= math.sin(bullet['angle']*(math.pi/180))*bullet_speed*dt
@@ -121,4 +140,5 @@ def update(dt):
 
 def bullet_hit_asteroid(b_x,b_y,b_radius,a_x,a_y,a_radius):
     return (b_x - a_x)**2 + (b_y - a_y)**2 <= (b_radius + a_radius)**2
+
 
