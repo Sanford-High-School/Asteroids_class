@@ -101,11 +101,17 @@ def update(dt):
         asteroid['asteroid_y'] -= math.cos(asteroid['asteroid_angle']*(math.pi/180))*asteroid_speed*dt
         asteroid['asteroid_x'] %= WIDTH
         asteroid['asteroid_y'] %= HEIGHT
-        if asteroid_hit_spaceship(alien_x, alien_y, 30,
+        ship_x = alien.pos[0]
+        ship_y = alien.pos[1]
+        
+        if asteroid_hit_spaceship(ship_x, ship_y, 30,
                                    asteroid['asteroid_x'],
                                    asteroid['asteroid_y'],
                                    asteroid['asteroid_radius']):
-            print('Hit Spaceship')
+            print(alien_x,alien_y)
+            print(asteroid['asteroid_x'])
+            print(alien.pos)
+            input("Hit the Spaceship")
 
 
     for bullet in bullets.copy():
