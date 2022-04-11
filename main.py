@@ -1,6 +1,7 @@
 # Write your code here :-)
 
 import math
+import random
 
 WIDTH = 800
 HEIGHT = 500
@@ -14,28 +15,59 @@ global alien_speed_y
 global bullets
 global bullet_timer
 global bullet_time_between_shots
+global asteroids
+global bullet_radius
+global asteroid_radius
+global asteroid_color
 
-bullet_time_between_shots = 0.5
-bullet_timer = 0
-bullets = []
-asteroids = []
-alien_speed_x=0
-alien_speed_y=0
-alien_x = 0
-alien_y = 0
-bullet_radius = 5
-asteroid_radius = 50
-asteroid_color = (255,0,0)
+def reset():
+    global alien_x
+    global alien_y
+    global alien_speed_x
+    global alien_speed_y
+    global bullets
+    global bullet_timer
+    global bullet_time_between_shots
+    global asteroids
+    global bullet_radius
+    global asteroid_radius
+    global asteroid_color
 
-asteroids.append({'asteroid_x':100,
-                  'asteroid_y':100,
-                  'asteroid_color':asteroid_color,
-                  'asteroid_radius':asteroid_radius})
-asteroids.append({'asteroid_x':700,
-                  'asteroid_y':100,
-                  'asteroid_color':asteroid_color,
-                  'asteroid_radius':asteroid_radius})
+    alien.center=(WIDTH/2,HEIGHT/2)
+    alien.angle = 0
+    bullet_time_between_shots = 0.5
+    bullet_timer = 0
+    bullets = []
+    asteroids = []
+    alien_speed_x=0
+    alien_speed_y=0
+    alien_x = 0
+    alien_y = 0
+    bullet_radius = 5
+    asteroid_radius = 50
+    asteroid_color = (255,0,0)
 
+    ast_angle = random.randint(0,180)
+    asteroids.append({'asteroid_x':int(WIDTH/8),
+                    'asteroid_y':int(HEIGHT/5),
+                    'asteroid_color':asteroid_color,
+                    'asteroid_radius':asteroid_radius,
+                    'asteroid_angle':ast_angle})
+    ast_angle = random.randint(0,180)
+    asteroids.append({'asteroid_x':int(WIDTH/7),
+                    'asteroid_y':int(HEIGHT/5),
+                    'asteroid_color':asteroid_color,
+                    'asteroid_radius':asteroid_radius,
+                    'asteroid_angle':ast_angle})
+
+    ast_angle = random.randint(0,180)
+    asteroids.append({'asteroid_x':int(WIDTH/2),
+                    'asteroid_y':int(HEIGHT/1.25),
+                    'asteroid_color':asteroid_color,
+                    'asteroid_radius':asteroid_radius,
+                    'asteroid_angle':ast_angle})
+
+reset()
 
 def draw():
     screen.clear()
@@ -65,6 +97,7 @@ def update(dt):
 
 
     bullet_speed = 500
+    asteroid_speed = 150
     bullet_timer += dt
 
     if keyboard.left:
@@ -83,6 +116,19 @@ def update(dt):
                            'angle':alien.angle,
                            'time_left':4})
 
+    for asteroid in asteroids.copy():
+        asteroid['asteroid_x'] -= math.sin(asteroid['asteroid_angle']*(math.pi/180))*asteroid_speed*dt
+        asteroid['asteroid_y'] -= math.cos(asteroid['asteroid_angle']*(math.pi/180))*asteroid_speed*dt
+        asteroid['asteroid_x'] %= WIDTH
+        asteroid['asteroid_y'] %= HEIGHT
+        ship_x = alien.pos[0]
+        ship_y = alien.pos[1]
+
+        if asteroid_hit_spaceship(ship_x, ship_y, 30,
+                                   asteroid['asteroid_x'],
+                                   asteroid['asteroid_y'],
+                                   asteroid['asteroid_radius']):
+            reset()
 
     for bullet in bullets.copy():
         bullet['x']-= math.sin(bullet['angle']*(math.pi/180))*bullet_speed*dt
@@ -98,16 +144,26 @@ def update(dt):
                                    asteroid['asteroid_radius']):
                 bullets.remove(bullet)
                 asteroid['asteroid_radius'] = int(asteroid['asteroid_radius']*.5)
+                new_ast_radius = asteroid['asteroid_radius']
                 if asteroid['asteroid_radius']<= asteroid_radius/8:
                     asteroids.remove(asteroid)
+                else:
+                    #add another asteroid
+                    ast_angle = random.randint(0,180)
+                    ast_x = asteroid['asteroid_x']
+                    ast_y = asteroid['asteroid_y']
+                    asteroids.append({'asteroid_x':ast_x,
+                                      'asteroid_y':ast_y,
+                                      'asteroid_color':asteroid_color,
+                                      'asteroid_radius':new_ast_radius,
+                                      'asteroid_angle':ast_angle})
+
 
 
     alien.top -= alien_speed_y
     alien.left -= alien_speed_x
 
     actual_speed = math.sqrt(alien_speed_x**2 + alien_speed_y**2)
-    #print(actual_speed)
-    #print(alien.bottom)
 
     alien.top %= HEIGHT
     alien.left %= WIDTH
@@ -121,4 +177,8 @@ def update(dt):
 
 def bullet_hit_asteroid(b_x,b_y,b_radius,a_x,a_y,a_radius):
     return (b_x - a_x)**2 + (b_y - a_y)**2 <= (b_radius + a_radius)**2
+
+def asteroid_hit_spaceship(ship_x,ship_y,ship_radius,a_x,a_y,a_radius):
+    return (ship_x - a_x)**2 + (ship_y - a_y)**2 <= (ship_radius + a_radius)**2
+
 
